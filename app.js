@@ -1,10 +1,14 @@
+require('dotenv').config()
 const express = require("express");
 const app = express();
 const mongoose = require('mongoose');
 
 const pollRouter = require('./routes/PollRoutes');
+console.log(process.env.uris)
 
-mongoose.connect('mongodb://localhost:27017/system-poll', {
+const uris = process.env.uris
+
+mongoose.connect(uris, {
     useNewUrlParser: true
 }).then(res => {
     console.log('Connected to Database');
