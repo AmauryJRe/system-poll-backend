@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 
 const pollRouter = require('./routes/PollRoutes');
 
-const uris = process.env.uris
+const uris = process.env.URIS
 
 mongoose.connect(uris, {
     useNewUrlParser: true
