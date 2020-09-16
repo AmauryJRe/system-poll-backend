@@ -4,7 +4,6 @@ const app = express();
 const mongoose = require('mongoose');
 
 const pollRouter = require('./routes/PollRoutes');
-console.log(process.env.uris)
 
 const uris = process.env.uris
 
