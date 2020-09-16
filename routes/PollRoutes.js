@@ -46,9 +46,7 @@ router.delete('/:id', async (req, res) => {
 
 router.patch('/:id', async (req, res) => {
     try {
-        let poll= await pollModel.findById(`${req.params.id}`);
-        poll.options[`${req.body.option}`]+=1;
-        await pollModel.findByIdAndUpdate(req.params.id, poll)
+        await pollModel.findByIdAndUpdate(req.params.id, req.body)
         await pollModel.save()
         res.send(poll)
     } catch (err) {
