@@ -6,9 +6,9 @@ const app = express();
 const mongoose = require('mongoose');
 
 const pollRouter = require('./routes/PollRoutes');
+const voteRouter = require('./routes/VoteRoutes');
 const userProfileRoute  = require('./routes/UserProfileRoutes')
-
-const uris = process.env.uris
+const uris = process.env.URIS
 
 mongoose.connect(uris, {
     useNewUrlParser: true
@@ -27,5 +27,6 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-app.use('/poll', pollRouter);
+app.use('/poll',pollRouter);
+app.use('/vote',voteRouter);
 app.use('/userprofile',userProfileRoute);
