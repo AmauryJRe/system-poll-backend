@@ -1,7 +1,7 @@
 const winston = require('winston');
 const { transports, format } = winston;
 require('dotenv').config();
-const errorFile = process.env.ERROFILE
+const errorFile = process.env.ERROFILE;
 module.exports = class MyLogger {
   constructor() {
     const print = format.printf((info) => {
