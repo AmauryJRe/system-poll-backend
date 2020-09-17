@@ -19,7 +19,7 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 // FIXME
 router.get('/', async (req, res) => {
-  const userProfiles = await UserProfileModel.find({});
+  const userProfiles = await UserProfileModel.find({}, { password: 0, avatar: 0 });
 
   try {
     res.send({ profiles: userProfiles });
