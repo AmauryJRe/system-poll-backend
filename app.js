@@ -6,6 +6,7 @@ const app = express();
 const mongoose = require('mongoose');
 
 const pollRouter = require('./routes/PollRoutes');
+const userProfileRoute  = require('./routes/UserProfileRoutes')
 
 const uris = process.env.uris
 
@@ -26,4 +27,5 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-app.use('/poll',pollRouter);
+app.use('/poll', pollRouter);
+app.use('/userprofile',userProfileRoute);
