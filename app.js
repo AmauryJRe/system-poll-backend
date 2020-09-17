@@ -3,6 +3,7 @@ const app = express();
 const mongoose = require('mongoose');
 
 const pollRouter = require('./routes/PollRoutes');
+const voteRouter = require('./routes/VoteRoutes');
 
 mongoose.connect('mongodb://localhost:27017/system-poll', {
     useNewUrlParser: true
@@ -22,3 +23,4 @@ app.get('/', (req, res) => {
 });
 
 app.use('/poll',pollRouter);
+app.use('/vote',voteRouter);
