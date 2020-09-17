@@ -17,7 +17,7 @@ var storage = multer.diskStorage({
 });
 
 var upload = multer({ storage: storage });
-// FIXME
+
 router.get('/', async (req, res) => {
   const userProfiles = await UserProfileModel.find({}, { password: 0, avatar: 0 });
 
@@ -40,15 +40,15 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', upload.single('image'), async (req, res) => {
   try {
-    logger.info('Adding userprofile to the database: ' + req.body.name);
+    logger.info('Adding userprofile to the database: ' + req.body.username);
     let userProfile = new UserProfileModel(req.body);
     const avatarCachePath = path.join(__dirname, '..', 'uploads', req.file.filename);
     userProfile.avatar = {
       data: fs.readFileSync(avatarCachePath),
-      contentType: 'image/png',
+      contentType: req.file.mimetype,
     };
     await userProfile.save();
-    // FIXME See if this is onvenient in the future
+
     fs.unlinkSync(avatarCachePath);
     logger.info('User profile stored succesfully');
     res.send(userProfile);
