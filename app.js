@@ -1,3 +1,6 @@
+require('dotenv').config()
+const Logger = require('./models/Logger');
+const { logger } = new Logger();
 const express = require("express");
 const app = express();
 const mongoose = require('mongoose');
@@ -5,16 +8,18 @@ const mongoose = require('mongoose');
 const pollRouter = require('./routes/PollRoutes');
 const voteRouter = require('./routes/VoteRoutes');
 
-mongoose.connect('mongodb://localhost:27017/system-poll', {
+const uris = process.env.URIS
+
+mongoose.connect(uris, {
     useNewUrlParser: true
 }).then(res => {
-    console.log('Connected to Database');
+    logger.info('Connected to Database')
 }).catch(err => {
     console.error(err);
 });
 
 const SERVER_PORT = process.env.SERVER_PORT || 3000;
-app.listen(SERVER_PORT, () => console.log(`Server running in ${SERVER_PORT}`));
+app.listen(SERVER_PORT, () => logger.info(`Server running in ${SERVER_PORT}`));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
