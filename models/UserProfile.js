@@ -5,7 +5,6 @@ const userProfileSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
-  name: String,
   fullName: String,
   password: String,
   avatar: {
