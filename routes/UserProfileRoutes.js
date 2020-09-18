@@ -80,6 +80,7 @@ router.patch('/', upload.single('image'), async (req, res) => {
         data: image,
         contentType: req.file.mimetype,
       };
+      fs.unlinkSync(path.join(__dirname, '..', 'uploads', req.file.filename))
     }
 
     await UserProfileModel.findByIdAndUpdate(req.body.id, userProfile);

@@ -2,13 +2,25 @@ require('dotenv').config();
 const Logger = require('./models/Logger');
 const { logger } = new Logger();
 const express = require('express');
-const app = express();
 const mongoose = require('mongoose');
 
 const pollRouter = require('./routes/PollRoutes');
 const voteRouter = require('./routes/VoteRoutes');
 const userProfileRoute = require('./routes/UserProfileRoutes');
 const uris = process.env.URIS;
+const methodOverride = require('method-override');
+
+const app = express();
+//For Dev porpuse
+const getter = (req) => {
+  if (req.body && typeof req.body === 'object' && 'method' in req.body) {
+    logger.warn(`MiddleWare Method Override is running`);
+    const method = req.body.method;
+    delete req.body.method;
+    return method;
+  }
+};
+//For Dev porpuse
 
 const fs = require('fs');
 var path = require('path');
@@ -17,7 +29,7 @@ mongoose
   .connect(uris, {
     useNewUrlParser: true,
   })
-  .then((res) => {
+  .then(() => {
     logger.info('Connected to Database');
   })
   .catch((err) => {
@@ -40,6 +52,7 @@ const SERVER_PORT = process.env.SERVER_PORT || 3000;
 app.listen(SERVER_PORT, () => logger.info(`Server running in ${SERVER_PORT}`));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride(getter));
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
