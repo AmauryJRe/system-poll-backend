@@ -69,10 +69,21 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/', upload.single('image'), async (req, res) => {
+  logger.info('Updating User');
   try {
-    await UserProfileModel.findByIdAndUpdate(req.params.id, req.body);
-    // TODO. Add cod for proper image update
+    let userProfile = req.body;
+    const image = fs.readFileSync(path.join(__dirname, '..', 'uploads', req.file.filename));
+    if (image) {
+      logger.warn(image.byteLength + 'Length ');
+      userProfile.avatar = {
+        data: image,
+        contentType: req.file.mimetype,
+      };
+    }
+
+    await UserProfileModel.findByIdAndUpdate(req.body.id, userProfile);
+
     await UserProfileModel.save();
     res.send({});
   } catch (err) {
