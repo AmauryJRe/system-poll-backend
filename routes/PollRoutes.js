@@ -23,7 +23,7 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const poll = new pollModel(req.body);
+  const poll = new pollModel({ name: req.body.name, options: JSON.parse(req.body.options) });
 
   try {
     await poll.save();
