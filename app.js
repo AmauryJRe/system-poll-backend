@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 const pollRouter = require('./routes/PollRoutes');
 const voteRouter = require('./routes/VoteRoutes');
 const userProfileRoute = require('./routes/UserProfileRoutes');
+const authRoute = require('./routes/AuthRoute');
+
 const uris = process.env.URIS;
 const cors = require('cors');
 
@@ -17,6 +19,7 @@ var path = require('path');
 mongoose
   .connect(uris, {
     useNewUrlParser: true,
+    useCreateIndex: true,
   })
   .then(() => {
     logger.info('Connected to Database');
@@ -50,3 +53,4 @@ app.get('/', (req, res) => {
 app.use('/poll', pollRouter);
 app.use('/vote', voteRouter);
 app.use('/userprofile', userProfileRoute);
+app.use('/user', authRoute);
