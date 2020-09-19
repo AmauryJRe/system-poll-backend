@@ -11,5 +11,6 @@ Create in the project root folder a **.env** file with the proper configuration 
 ```bash
 SERVER_PORT=3000
 URIS='mongodb://localhost:27017/system-poll'
+JWT_SECRET='secret-key'
 ERROFILE=./logs/errors.log
 ```
