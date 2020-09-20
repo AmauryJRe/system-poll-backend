@@ -9,6 +9,14 @@ const pollSchema = new mongoose.Schema({
     type: {},
     of: Number,
   },
+  new: {
+    type: Boolean,
+    default: true,
+  },
+  edited: {
+    type: Boolean,
+    default: false,
+  },
   closed: {
     type: Boolean,
     default: false,
