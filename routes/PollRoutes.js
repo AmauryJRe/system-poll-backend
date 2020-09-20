@@ -1,7 +1,8 @@
 const express = require('express');
 const pollModel = require('../models/Poll');
 const router = express.Router();
-
+const Logger = require('../models/Logger');
+const { logger } = new Logger();
 router.get('/', async (req, res) => {
   const polls = await pollModel.find({});
 
@@ -45,7 +46,9 @@ router.delete('/:id', async (req, res) => {
 
 router.patch('/:id', async (req, res) => {
   try {
-    await pollModel.findByIdAndUpdate(req.params.id, req.body);
+    const poll = { name: req.body.name, options: JSON.parse(req.body.options) };
+    poll.edited = true;
+    await pollModel.findByIdAndUpdate(req.params.id, poll);
     await pollModel.save();
     res.send({});
   } catch (err) {
