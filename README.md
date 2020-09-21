@@ -100,3 +100,7 @@ axios(config)
 ```
 
 **_Taken from Postman_**
+
+## Sweet Alert docs
+
+http://djorg83.github.io/react-bootstrap-sweetalert/
