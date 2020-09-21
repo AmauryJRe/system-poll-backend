@@ -19,7 +19,7 @@ router.post('/register', async (req, res) => {
 
   // Simple validation
   if (!username || !password) {
-    return res.status(400).json({ msg: 'Please enter all fields' });
+    return res.status(400).json({ error: 'Please enter all fields' });
   }
 
   try {
@@ -68,7 +68,7 @@ router.post('/login', async (req, res) => {
 
   // Simple validation
   if (!username || !password) {
-    return res.status(400).json({ msg: 'Please enter all fields' });
+    return res.status(400).json({ error: 'Please enter all fields' });
   }
 
   try {
@@ -90,7 +90,7 @@ router.post('/login', async (req, res) => {
       },
     });
   } catch (e) {
-    res.status(400).json({ msg: e.message });
+    res.status(400).json({ error: e.message });
   }
 });
 
@@ -106,7 +106,7 @@ router.get('/user', auth, async (req, res) => {
     if (!user) throw Error('User does not exist');
     res.json(user);
   } catch (e) {
-    res.status(400).json({ msg: e.message });
+    res.status(400).json({ error: e.message });
   }
 });
 module.exports = router;
