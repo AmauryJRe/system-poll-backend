@@ -35,7 +35,6 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/cantVote/:id', async (req, res, next) => {
-  logger.info(req.params.id);
   await getAllPollWhereUserCantVote(req, res, req.params.id);
   next();
 });

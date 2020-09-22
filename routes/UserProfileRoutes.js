@@ -19,7 +19,7 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 router.get('/', async (req, res) => {
-  const userProfiles = await UserProfileModel.find({}, { password: 0, avatar: 0 });
+  const userProfiles = await UserProfileModel.find({}, { password: 0 });
 
   try {
     res.send(userProfiles);

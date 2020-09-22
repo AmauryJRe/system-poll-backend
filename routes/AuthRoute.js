@@ -70,7 +70,6 @@ router.post('/register', upload.single('file'), async (req, res) => {
       },
     });
   } catch (e) {
-    console.log(e);
     res.status(400).json({ error: e.message });
   }
 });

@@ -41,7 +41,6 @@ const updateVote = async (req, res, poll, vote_id) => {
 };
 
 const resetVotesForPoll = async (req, res, poll_id) => {
-  logger.warn(poll_id);
   let votes = await voteRegistry.find({ poll_id: poll_id });
   votes.forEach((vote) => {
     vote.canVote = true;

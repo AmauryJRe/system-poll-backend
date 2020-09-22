@@ -26,7 +26,6 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   const poll = new pollModel({ name: req.body.name, options: JSON.parse(req.body.options) });
-  logger.info(JSON.parse(req.body.options));
 
   try {
     await poll.save();
@@ -47,11 +46,8 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.patch('/:id', async (req, res) => {
-  logger.info('editing');
-  logger.info(JSON.parse(req.body.options));
   try {
     const poll = { name: req.body.name, options: JSON.parse(req.body.options) };
-    logger.info(poll);
     poll.edited = true;
     const response = await pollModel.findByIdAndUpdate(req.params.id, poll);
     await response.save();
