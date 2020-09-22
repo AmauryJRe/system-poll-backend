@@ -3,6 +3,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const User = require('../models/UserProfile');
+const path = require('path');
+var multer = require('multer');
+var fs = require('fs');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const router = express.Router();
@@ -13,15 +16,22 @@ const router = express.Router();
  * @access  Public
  */
 
-router.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-  console.log(req.body);
+var storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + '-' + Date.now());
+  },
+});
 
-  // Simple validation
-  if (!username || !password) {
+var upload = multer({ storage: storage });
+
+router.post('/register', upload.single('file'), async (req, res) => {
+  let { username, password, fullName } = req.body;
+  if (!username || !password || !fullName) {
     return res.status(400).json({ error: 'Please enter all fields' });
   }
-
   try {
     const user = await User.findOne({ username });
     if (user) throw Error('User already exists');
@@ -36,8 +46,14 @@ router.post('/register', async (req, res) => {
     const newUser = new User({
       password: hash,
       username,
+      fullName,
     });
-
+    const avatarCachePath = path.join(__dirname, '..', 'uploads', req.file.filename);
+    newUser.avatar = {
+      data: fs.readFileSync(avatarCachePath),
+      contentType: req.file.mimetype,
+    };
+    fs.unlinkSync(avatarCachePath);
     const savedUser = await newUser.save();
     if (!savedUser) throw Error('Something went wrong saving the user');
 
@@ -53,6 +69,7 @@ router.post('/register', async (req, res) => {
       },
     });
   } catch (e) {
+    console.log(e);
     res.status(400).json({ error: e.message });
   }
 });
