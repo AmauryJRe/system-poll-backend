@@ -4,7 +4,7 @@
 
 The configurations are stored in environment variables to provide security and portability to the **development/deployment** life cycle of the project.
 
-### Configuration exmaple
+### Get Started
 
 Create in the project root folder a **.env** file with the proper configuration variables like shown below or just rename the **.env.example** file to **.env** and add your configurations
 
@@ -13,6 +13,12 @@ SERVER_PORT=3000
 URIS='mongodb://localhost:27017/system-poll'
 JWT_SECRET='secret-key'
 ERROFILE=./logs/errors.log
+```
+
+## Run default admin user seeder command
+
+```js
+node ./seeders/users.seeder.js
 ```
 
 ## API Documentation
