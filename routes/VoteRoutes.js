@@ -12,7 +12,6 @@ const {
 const { logger } = new Logger();
 
 router.post('/', async (req, res) => {
-
   const poll = await pollModel.findById(`${req.body.poll_id}`);
   const vote = await voteRegistry.find({ user_id: req.body.user_id, poll_id: req.body.poll_id });
   if (vote.length > 0 && vote[0].canVote) {

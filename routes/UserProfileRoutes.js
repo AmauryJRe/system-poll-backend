@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
   const userProfiles = await UserProfileModel.find({}, { password: 0, avatar: 0 });
 
   try {
-    res.send({ profiles: userProfiles });
+    res.send(userProfiles);
   } catch (err) {
     res.status(500).send(err);
   }
