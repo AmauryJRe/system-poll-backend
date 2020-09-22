@@ -3,11 +3,17 @@ const voteRegistry = require('../models/VoteRegistry');
 const pollModel = require('../models/Poll');
 const router = express.Router();
 const Logger = require('../models/Logger');
-const { updateVote, makeVote, resetVotesForPoll } = require('../util/voteHandler');
+const {
+  updateVote,
+  makeVote,
+  resetVotesForPoll,
+  getAllPollWhereUserCantVote,
+} = require('../util/voteHandler');
 const { logger } = new Logger();
 
 router.post('/', async (req, res) => {
-  const poll = await pollModel.findById(req.body.poll_id);
+
+  const poll = await pollModel.findById(`${req.body.poll_id}`);
   const vote = await voteRegistry.find({ user_id: req.body.user_id, poll_id: req.body.poll_id });
   if (vote.length > 0 && vote[0].canVote) {
     logger.info(`The user: ${'user'} can vote again, the option canVote is true`);
@@ -19,13 +25,19 @@ router.post('/', async (req, res) => {
   }
 
   if (vote.length > 0 && !vote[0].canVote) {
-    console.log(`The user: ${'user'} can\'t vote again`);
+    console.log(`The user: ${'user'} can't vote again`);
     res.status(403).json({ message: "This User can't vote again", code: 403, error: true });
   }
 });
 
 router.get('/', async (req, res, next) => {
   resetVotesForPoll(req, res, req.body.poll_id);
+  next();
+});
+
+router.get('/cantVote/:id', async (req, res, next) => {
+  logger.info(req.params.id);
+  await getAllPollWhereUserCantVote(req, res, req.params.id);
   next();
 });
 
