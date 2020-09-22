@@ -57,7 +57,7 @@ router.post('/register', upload.single('file'), async (req, res) => {
     const savedUser = await newUser.save();
     if (!savedUser) throw Error('Something went wrong saving the user');
 
-    const token = jwt.sign({ id: savedUser._id }, JWT_SECRET, {
+    const token = jwt.sign({ id: savedUser._id, role: savedUser.role }, JWT_SECRET, {
       expiresIn: 3600,
     });
 
@@ -66,6 +66,7 @@ router.post('/register', upload.single('file'), async (req, res) => {
       user: {
         id: savedUser._id,
         username: savedUser.username,
+        role: savedUser.role,
       },
     });
   } catch (e) {
@@ -96,7 +97,7 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw Error('Invalid credentials');
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: 3600 });
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 3600 });
     if (!token) throw Error('Could not sign the token');
 
     res.status(200).json({
@@ -104,6 +105,7 @@ router.post('/login', async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
+        role: user.role,
       },
     });
   } catch (e) {
