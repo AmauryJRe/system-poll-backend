@@ -11,6 +11,10 @@ const userProfileSchema = new mongoose.Schema({
     data: Buffer,
     contentType: String,
   },
+  fullSizeAvatar: {
+    data: Buffer,
+    contentType: String,
+  },
   role: {
     type: String,
     default: 'user',
