@@ -5,6 +5,8 @@ const express = require('express');
 const router = express.Router();
 const UserProfileModel = require('../models/UserProfile');
 const Logger = require('../models/Logger');
+const auth = require('../middleware/auth');
+const sharp = require('sharp');
 const { logger } = new Logger();
 
 var storage = multer.diskStorage({
@@ -38,11 +40,20 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', auth, upload.single('image'), async (req, res) => {
   try {
     logger.info('Adding userprofile to the database: ' + req.body.username);
     let userProfile = new UserProfileModel(req.body);
     const avatarCachePath = path.join(__dirname, '..', 'uploads', req.file.filename);
+    sharp(avatarCachePath)
+      .resize({ height: 100, width: 100 })
+      .toFile(avatarCachePath)
+      .then(() => {
+        console.log('Image Resized');
+      })
+      .catch(() => {
+        console.log('Got Error');
+      });
     userProfile.avatar = {
       data: fs.readFileSync(avatarCachePath),
       contentType: req.file.mimetype,
@@ -58,7 +69,7 @@ router.post('/', upload.single('image'), async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     //   TODO
     const userProfile = await UserProfileModel.findByIdAndDelete(req.params.id);
@@ -73,19 +84,33 @@ router.patch('/', upload.single('image'), async (req, res) => {
   logger.info('Updating User');
   try {
     let userProfile = req.body;
-    const image = fs.readFileSync(path.join(__dirname, '..', 'uploads', req.file.filename));
+    logger.info('Updating User');
+    const avatarCachePath = path.join(__dirname, '..', 'uploads', req.file.filename);
+    const avatarCachePathRe = path.join(__dirname, '..', 'uploads', `Resized-${req.file.filename}`);
+    sharp(avatarCachePath)
+      .resize({ height: 100, width: 100 })
+      .toFile(avatarCachePathRe)
+      .then((res) => {
+        console.log('Image Resized ' + res.byteLength);
+      })
+      .catch((err) => {
+        console.log('Got Error' + err);
+      });
+
+    const image = fs.readFileSync(avatarCachePathRe);
     if (image) {
-      logger.warn(image.byteLength + 'Length ');
       userProfile.avatar = {
         data: image,
         contentType: req.file.mimetype,
       };
-      fs.unlinkSync(path.join(__dirname, '..', 'uploads', req.file.filename));
+      console.log('Image length ' + image.byteLength / 1024);
     }
+    fs.unlinkSync(avatarCachePathRe);
+    fs.unlinkSync(avatarCachePath);
 
-    await UserProfileModel.findByIdAndUpdate(req.body.id, userProfile);
+    userProfile = await UserProfileModel.findByIdAndUpdate(req.body.id, userProfile);
 
-    await UserProfileModel.save();
+    await userProfile.save();
     res.send({});
   } catch (err) {
     res.status(500).send(err);

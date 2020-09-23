@@ -3,6 +3,7 @@ const pollModel = require('../models/Poll');
 const router = express.Router();
 const { success, error } = require('../util/responseApi');
 const Logger = require('../models/Logger');
+const auth = require('../middleware/auth');
 const { logger } = new Logger();
 
 router.get('/', async (req, res) => {
@@ -24,7 +25,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/',auth, async (req, res) => {
   const poll = new pollModel({ name: req.body.name, options: JSON.parse(req.body.options) });
 
   try {
@@ -35,7 +36,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',auth, async (req, res) => {
   try {
     const poll = await pollModel.findByIdAndDelete(req.params.id);
     if (!poll) res.status(404).send('No item found');
@@ -45,7 +46,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id',auth, async (req, res) => {
   try {
     const poll = { name: req.body.name, options: JSON.parse(req.body.options) };
     poll.edited = true;

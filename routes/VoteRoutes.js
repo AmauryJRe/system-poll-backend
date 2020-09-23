@@ -3,6 +3,8 @@ const voteRegistry = require('../models/VoteRegistry');
 const pollModel = require('../models/Poll');
 const router = express.Router();
 const Logger = require('../models/Logger');
+const auth = require('../middleware/auth');
+
 const {
   updateVote,
   makeVote,
@@ -11,7 +13,7 @@ const {
 } = require('../util/voteHandler');
 const { logger } = new Logger();
 
-router.post('/', async (req, res) => {
+router.post('/',auth, async (req, res) => {
   const poll = await pollModel.findById(`${req.body.poll_id}`);
   const vote = await voteRegistry.find({ user_id: req.body.user_id, poll_id: req.body.poll_id });
   if (vote.length > 0 && vote[0].canVote) {
@@ -29,12 +31,12 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res, next) => {
+router.get('/',auth, async (req, res, next) => {
   resetVotesForPoll(req, res, req.body.poll_id);
   next();
 });
 
-router.get('/cantVote/:id', async (req, res, next) => {
+router.get('/cantVote/:id',auth, async (req, res, next) => {
   await getAllPollWhereUserCantVote(req, res, req.params.id);
   next();
 });
