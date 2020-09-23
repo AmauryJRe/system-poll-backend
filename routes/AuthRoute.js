@@ -6,6 +6,7 @@ const User = require('../models/UserProfile');
 const path = require('path');
 var multer = require('multer');
 var fs = require('fs');
+const sharp = require('sharp');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const router = express.Router();
@@ -49,11 +50,20 @@ router.post('/register', upload.single('file'), async (req, res) => {
       fullName,
     });
     const avatarCachePath = path.join(__dirname, '..', 'uploads', req.file.filename);
-    newUser.avatar = {
-      data: fs.readFileSync(avatarCachePath),
-      contentType: req.file.mimetype,
-    };
+    const avatarCachePathRe = path.join(__dirname, '..', 'uploads', `Resized-${req.file.filename}`);
+    await sharp(avatarCachePath).resize({ height: 100, width: 100 }).toFile(avatarCachePathRe);
+
+    const image = fs.readFileSync(avatarCachePathRe);
+    if (image) {
+      newUser.avatar = {
+        data: image,
+        contentType: req.file.mimetype,
+      };
+      console.log('Image length ' + image.byteLength / 1024);
+    }
+    fs.unlinkSync(avatarCachePathRe);
     fs.unlinkSync(avatarCachePath);
+
     const savedUser = await newUser.save();
     if (!savedUser) throw Error('Something went wrong saving the user');
 

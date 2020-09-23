@@ -21,7 +21,7 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 router.get('/', async (req, res) => {
-  const userProfiles = await UserProfileModel.find({}, { password: 0 });
+  const userProfiles = await UserProfileModel.find({}, { password: 0, fullSizeAvatar:0 });
 
   try {
     res.send(userProfiles);
@@ -45,19 +45,29 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
     logger.info('Adding userprofile to the database: ' + req.body.username);
     let userProfile = new UserProfileModel(req.body);
     const avatarCachePath = path.join(__dirname, '..', 'uploads', req.file.filename);
-    sharp(avatarCachePath)
-      .resize({ height: 100, width: 100 })
-      .toFile(avatarCachePath)
-      .then(() => {
-        console.log('Image Resized');
-      })
-      .catch(() => {
-        console.log('Got Error');
-      });
-    userProfile.avatar = {
-      data: fs.readFileSync(avatarCachePath),
-      contentType: req.file.mimetype,
-    };
+    const avatarCachePathRe = path.join(__dirname, '..', 'uploads', `Resized-${req.file.filename}`);
+
+    await sharp(avatarCachePath).resize({ height: 100, width: 100 }).toFile(avatarCachePathRe);
+
+    const avatarTumbnail = fs.readFileSync(avatarCachePathRe);
+    const fullSizeAvatar = fs.readFileSync(avatarCachePath);
+    if (avatarTumbnail) {
+      userProfile.avatar = {
+        data: avatarTumbnail,
+        contentType: req.file.mimetype,
+      };
+      console.log('Avatar Tumbnail Size ' + avatarTumbnail.byteLength / 1024);
+    }
+    if (fullSizeAvatar) {
+      userProfile.fullSizeAvatar = {
+        data: fullSizeAvatar,
+        contentType: req.file.mimetype,
+      };
+      console.log('Full Avatar Size ' + fullSizeAvatar.byteLength / 1024);
+    }
+    fs.unlinkSync(avatarCachePathRe);
+    fs.unlinkSync(avatarCachePath);
+
     await userProfile.save();
 
     fs.unlinkSync(avatarCachePath);
@@ -69,17 +79,6 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
   }
 });
 
-router.delete('/:id', auth, async (req, res) => {
-  try {
-    //   TODO
-    const userProfile = await UserProfileModel.findByIdAndDelete(req.params.id);
-    if (!userProfile) res.status(404).send('No item found');
-    res.status(200).send();
-  } catch (err) {
-    res.status(500).send(err);
-  }
-});
-
 router.patch('/', upload.single('image'), async (req, res) => {
   logger.info('Updating User');
   try {
@@ -87,23 +86,24 @@ router.patch('/', upload.single('image'), async (req, res) => {
     logger.info('Updating User');
     const avatarCachePath = path.join(__dirname, '..', 'uploads', req.file.filename);
     const avatarCachePathRe = path.join(__dirname, '..', 'uploads', `Resized-${req.file.filename}`);
-    sharp(avatarCachePath)
-      .resize({ height: 100, width: 100 })
-      .toFile(avatarCachePathRe)
-      .then((res) => {
-        console.log('Image Resized ' + res.byteLength);
-      })
-      .catch((err) => {
-        console.log('Got Error' + err);
-      });
 
-    const image = fs.readFileSync(avatarCachePathRe);
-    if (image) {
+    await sharp(avatarCachePath).resize({ height: 100, width: 100 }).toFile(avatarCachePathRe);
+
+    const avatarTumbnail = fs.readFileSync(avatarCachePathRe);
+    const fullSizeAvatar = fs.readFileSync(avatarCachePath);
+    if (avatarTumbnail) {
       userProfile.avatar = {
-        data: image,
+        data: avatarTumbnail,
         contentType: req.file.mimetype,
       };
-      console.log('Image length ' + image.byteLength / 1024);
+      console.log('Avatar Tumbnail Size ' + avatarTumbnail.byteLength / 1024);
+    }
+    if (fullSizeAvatar) {
+      userProfile.fullSizeAvatar = {
+        data: fullSizeAvatar,
+        contentType: req.file.mimetype,
+      };
+      console.log('Full Avatar Size ' + fullSizeAvatar.byteLength / 1024);
     }
     fs.unlinkSync(avatarCachePathRe);
     fs.unlinkSync(avatarCachePath);
@@ -117,4 +117,13 @@ router.patch('/', upload.single('image'), async (req, res) => {
   }
 });
 
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const userProfile = await UserProfileModel.findByIdAndDelete(req.params.id);
+    if (!userProfile) res.status(404).send('No item found');
+    res.status(200).send();
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 module.exports = router;
