@@ -67,9 +67,18 @@ router.post('/register', upload.single('file'), async (req, res) => {
     const savedUser = await newUser.save();
     if (!savedUser) throw Error('Something went wrong saving the user');
 
-    const token = jwt.sign({ id: savedUser._id, role: savedUser.role }, JWT_SECRET, {
-      expiresIn: 3600,
-    });
+    const token = jwt.sign(
+      {
+        id: savedUser._id,
+        role: savedUser.role,
+        username: savedUser.username,
+        fullName: savedUser.fullName,
+      },
+      JWT_SECRET,
+      {
+        expiresIn: 3600,
+      },
+    );
 
     res.status(200).json({
       token,
@@ -106,7 +115,11 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw Error('Invalid credentials');
 
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 3600 });
+    const token = jwt.sign(
+      { id: user._id, role: user.role, username: user.username, fullName: user.fullName },
+      JWT_SECRET,
+      { expiresIn: 3600 },
+    );
     if (!token) throw Error('Could not sign the token');
 
     res.status(200).json({
@@ -122,19 +135,4 @@ router.post('/login', async (req, res) => {
   }
 });
 
-/**
- * @route   GET api/auth/user
- * @desc    Get user data
- * @access  Private
- */
-
-router.get('/user', auth, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-    if (!user) throw Error('User does not exist');
-    res.json(user);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-});
 module.exports = router;
